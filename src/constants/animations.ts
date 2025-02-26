@@ -1,0 +1,26 @@
+export const WHEEL_ANIMATION = {
+  INITIAL_DELAY: 200,
+  SPIN_DURATION: 1000,
+  COMPLETION_DELAY: 300,
+  SPINS: 1,
+  EASE: "circOut"
+} as const;
+
+export const SPINNER_ANIMATION = {
+  INITIAL_DELAY: 200,
+  FAST_SPIN_DURATION: 500,
+  SLOW_SPIN_DURATION: 1000,
+  COMPLETION_DELAY: 300,
+  SPINS: 2,
+  INITIAL_EASE: "linear",
+  FINAL_EASE: "circOut",
+  ITEM_HEIGHT: 50,
+  VISIBLE_ITEMS: 3
+} as const;
+
+export const COIN_ANIMATION = {
+  INITIAL_DELAY: 200,
+  FLIP_DURATION: 1000,
+  COMPLETION_DELAY: 300,
+  EASE: "circOut"
+} as const; 

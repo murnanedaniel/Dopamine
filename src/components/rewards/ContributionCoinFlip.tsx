@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { motion, useAnimation } from 'framer-motion';
 import { FaClock, FaDollarSign } from 'react-icons/fa';
+import { COIN_ANIMATION } from '../../constants/animations';
 
 const CoinContainer = styled.div`
   position: relative;
@@ -53,10 +54,14 @@ export const ContributionCoinFlip: React.FC<ContributionCoinFlipProps> = ({ onFl
 
     const animate = async () => {
       // Wait for initial mount
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, COIN_ANIMATION.INITIAL_DELAY));
       if (!mounted) return;
 
-      const flips = 10;
+      // Generate a random number of flips between 2 and 4
+      const minFlips = 2;
+      const maxFlips = 7;
+      const flips = Math.floor(Math.random() * (maxFlips - minFlips + 1)) + minFlips;
+      
       const randomResult: 'money' | 'time' = Math.random() < 0.5 ? 'money' : 'time';
       const finalRotation = (flips * 360) + (randomResult === 'money' ? 0 : 180);
 
@@ -77,8 +82,8 @@ export const ContributionCoinFlip: React.FC<ContributionCoinFlipProps> = ({ onFl
         await controls.start({
           rotateY: [0, finalRotation],
           transition: {
-            duration: 4,
-            ease: "circOut",
+            duration: COIN_ANIMATION.FLIP_DURATION / 1000,
+            ease: COIN_ANIMATION.EASE,
             times: [0, 1]
           }
         });
@@ -86,7 +91,7 @@ export const ContributionCoinFlip: React.FC<ContributionCoinFlipProps> = ({ onFl
         if (!mounted) return;
 
         // Wait before completing
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, COIN_ANIMATION.COMPLETION_DELAY));
         if (!mounted) return;
 
         onFlipComplete(randomResult);

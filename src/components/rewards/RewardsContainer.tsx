@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { FaBook, FaRobot, FaPlane, FaChartLine, FaPiggyBank, FaLightbulb } from 'react-icons/fa';
@@ -94,6 +94,34 @@ export const RewardsContainer: React.FC<RewardsContainerProps> = ({
   const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
   const [contributionType, setContributionType] = useState<'money' | 'time'>('money');
   const [amount, setAmount] = useState<number>(0);
+  const [wheelSpinTrigger, setWheelSpinTrigger] = useState(0);
+  const [spinnerSpinTrigger, setSpinnerSpinTrigger] = useState(0);
+  const [hasTriggeredSpinner, setHasTriggeredSpinner] = useState(false);
+  const [isFirstRender, setIsFirstRender] = useState(true);
+
+  // Set first render flag to false after initial render
+  useEffect(() => {
+    if (isFirstRender) {
+      setIsFirstRender(false);
+    }
+  }, [isFirstRender]);
+
+  // Trigger the wheel spin when the rewards container becomes visible
+  useEffect(() => {
+    if (isVisible && currentStep === 'goal' && !isFirstRender) {
+      // Increment the trigger to start a new spin
+      setWheelSpinTrigger(prev => prev + 1);
+    }
+  }, [isVisible, currentStep, isFirstRender]);
+
+  // Trigger the spinner spin when we reach the amount step
+  useEffect(() => {
+    if (isVisible && currentStep === 'amount' && !hasTriggeredSpinner && !isFirstRender) {
+      // Increment the trigger to start a new spin
+      setSpinnerSpinTrigger(prev => prev + 1);
+      setHasTriggeredSpinner(true);
+    }
+  }, [isVisible, currentStep, hasTriggeredSpinner, isFirstRender]);
 
   const handleGoalSelect = (goal: Goal) => {
     setSelectedGoal(goal);
@@ -102,6 +130,7 @@ export const RewardsContainer: React.FC<RewardsContainerProps> = ({
 
   const handleTypeSelect = (type: 'money' | 'time') => {
     setContributionType(type);
+    setHasTriggeredSpinner(false); // Reset this flag when changing type
     setTimeout(() => setCurrentStep('amount'), 1000);
   };
 
@@ -123,6 +152,7 @@ export const RewardsContainer: React.FC<RewardsContainerProps> = ({
     setContributionType('money');
     setAmount(0);
     setCurrentStep('goal');
+    setHasTriggeredSpinner(false);
     onComplete?.();
   };
 
@@ -136,7 +166,11 @@ export const RewardsContainer: React.FC<RewardsContainerProps> = ({
             transition={{ duration: 0.3 }}
           >
             <Title>Let's see what you'll be rewarded with...</Title>
-            <GoalWheel goals={FUNDING_GOALS} onSpinComplete={handleGoalSelect} />
+            <GoalWheel 
+              goals={FUNDING_GOALS} 
+              spinTrigger={wheelSpinTrigger}
+              onSpinComplete={handleGoalSelect} 
+            />
           </StepContainer>
         );
       case 'type':
@@ -158,7 +192,11 @@ export const RewardsContainer: React.FC<RewardsContainerProps> = ({
             transition={{ duration: 0.3 }}
           >
             <Title>Your contribution amount...</Title>
-            <AmountSpinner type={contributionType} onSpinComplete={handleAmountSelect} />
+            <AmountSpinner 
+              type={contributionType} 
+              spinTrigger={spinnerSpinTrigger}
+              onSpinComplete={handleAmountSelect} 
+            />
           </StepContainer>
         );
       case 'success':
